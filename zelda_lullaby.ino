@@ -5,8 +5,10 @@
 
 unsigned int count = 0;
 unsigned int quaver_in_song = 0;
+int won = 0;
+int way_to_win = 0;
 int freq_interrupt = 8000; // interruption frequency is 8000kHz
-int resetCount = 80000000; // reset each second
+int resetCount = 80000000; // number of count until the counter is reset
 
 /*
  * intial notes are C4, D4, E4, F4
@@ -19,8 +21,6 @@ int play_notes[] = {0, 0, 0, 0};
 int len_notes = 4;
 int winning_sequence[] = {2, 0, 3, 2, 0, 3};
 int len_win = sizeof(winning_sequence) / sizeof(winning_sequence[0]);
-int won = 0;
-int way_to_win = 0;
 int past_note = -1;
 
 // choose if piezo is up or down
@@ -47,6 +47,9 @@ void setup_interruption() {
   sei();//allow interrupts
 }
 
+/*
+ * Play notes and stop playing
+ */
 void play_one_note(int note){
     int freq_note = freq_interrupt / note;
     
@@ -61,6 +64,14 @@ void play_one_note(int note){
     }
 }
 
+void stop_sound(){
+    digitalWrite(speakerA, LOW);
+    digitalWrite(speakerB, LOW);
+}
+
+/*
+ * Functions working during interruptions
+ */
 void piano_sound(){
     for (int i=0; i<len_notes; i++){
         if (play_notes[i] == 1) {
@@ -70,19 +81,49 @@ void piano_sound(){
 }
 
 void zelda_lullaby_sound(){
-    int song[] = 
-        {494, 494, 494, 494, 587, 587, 
-         880, 880, 880, 880, 784, 784, 
-         587, 587, 587, 587, 524, 494, 
-         440, 440, 440, 440, 440, 440};
+    int song[] = {
+         440, 440, 440, 440, 440, 440,
+         494, 494, 494, 494, 587, 587,
+         880, 880, 880, 880, 784, 784,
+         587, 587, 587, 587, 524, 494,
+         440, 440, 440, 440, 440, 440,
+         494, 494, 494, 494, 587, 587,
+         440, 440, 440, 440, 392, 440,
+         494, 494, 494, 494, 587, 587,
+         440, 440, 440, 440, 440, 440,
+         494, 494, 494, 494, 587, 587,
+         880, 880, 880, 880, 784, 784,
+         1175, 1175, 1175, 1175, 1175, 1175,
+         1175, 1175, 1175, 1175, 1175, 1175, 1175, 0,
+         1175, 1175, 1175, 1175, 1046, 988, 1046, 988,
+         784, 784, 784, 784, 1046, 1046, 1046, 1046,
+         988, 880, 988, 880, 659, 659, 659, 659,
+         1175, 1175, 1175, 1175, 1046, 988, 1046, 988,
+         784, 784, 1046, 1046, 1568, 1568, 1568, 1568,
+         1568, 1568, 1568, 1568, 1568, 1568, 1568, 1568
+        };
+    
     int len_song = sizeof(song) / sizeof(song[0]);
     
-    if (count % freq_interrupt/6 == 0){ // we divide by two to get quaver and by two to get tempo (tempo is 120)
-        quaver_in_song += 1;
+    if (quaver_in_song < len_song) { 
+        if (count % (freq_interrupt/6) == 0){ // we divide by two to get quaver and by two to get tempo (tempo is 120)
+            quaver_in_song += 1;
+        }
+        if (quaver_in_song + 1 < len_song){
+            // make some pause between the notes
+            if ((song[quaver_in_song+1] != song[quaver_in_song]) &&  
+                (count % (freq_interrupt/6) < 20))
+            {
+                stop_sound();
+            }
+            else play_one_note(song[quaver_in_song]);
+        }
+        else play_one_note(song[quaver_in_song]);
     }
-    
-    if (quaver_in_song < len_song) { play_one_note(song[quaver_in_song]); }
-    else { quaver_in_song = 0; }
+    else { 
+        stop_sound();
+        //quaver_in_song = 0; 
+    }
 }
 
 ISR (TIMER2_COMPA_vect) {
@@ -90,49 +131,50 @@ ISR (TIMER2_COMPA_vect) {
     count++; //Increment our count variable
     if (count==resetCount) { count=0; }
     
-    if(won==0){ piano_sound(); }
-    else { zelda_lullaby_sound(); }
+    if (won==0) piano_sound();
+    else if (won==1) zelda_lullaby_sound();
 }
 
+/*
+ * Main loop
+ */
 void loop_zelda_lullaby() {
     int resetState = digitalRead(reset);
     
-    if (resetState == HIGH){
+    if (resetState == HIGH){ // reset button
+        Serial.print("Reset");
         won = 0;
         way_to_win = 0;
+        quaver_in_song = 0;
     }
     
     int keyVal = analogRead(A0);
     int note = -1;
-    //Serial.print("Note is ");
-    //Serial.println(keyVal);
+    //Serial.print("Note is "); Serial.println(keyVal);
     
+    // get the value of the resistance and buttons
     if (keyVal > 1010) note = 0;
     else if (keyVal >= 990 && keyVal <= 1010) note = 1;
     else if (keyVal >= 490 && keyVal <= 520) note = 2;
     else if (keyVal >= 7 && keyVal <= 20) note = 3;
     else note = -1;
     
-    if (note != -1){
-        play_notes[note] = 1;
+    if (note != -1){ // one button is activated
+        play_notes[note] = 1; // play the note
         
-        if (past_note != note) {
+        if (past_note != note) { // check the winning sequence
             way_to_win = winning_sequence[way_to_win] == note ? way_to_win + 1 : 0;
-            Serial.print("note :");
-            Serial.print(note);
-            Serial.print("button value :");
-            Serial.print(keyVal);
-            Serial.print("new note :");
-            Serial.println(way_to_win);
+            Serial.print("note :"); Serial.print(note);
+            Serial.print("button value :"); Serial.print(keyVal);
+            Serial.print("new note :"); Serial.println(way_to_win);
         }
     } 
-    else { 
+    else { // no button activated
         for(int i=0; i<len_notes; i++) play_notes[i] = 0;
-        digitalWrite(speakerA, LOW);
-        digitalWrite(speakerB, LOW);
+        stop_sound();
     }
     
-    past_note = note;
+    past_note = note; // keep trace of old value
     
     if (way_to_win == len_win) won = 1; // the first notes of the lullaby have been found, 
                                         // can continue to zelda lullaby
