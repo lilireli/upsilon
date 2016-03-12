@@ -145,6 +145,8 @@ void loop_zelda_lullaby() {
         Serial.print("Reset");
         won = 0;
         way_to_win = 0;
+        for(int i=0; i<len_notes; i++) play_notes[i] = 0;
+        stop_sound();
         quaver_in_song = 0;
     }
     
@@ -157,7 +159,8 @@ void loop_zelda_lullaby() {
     else if (keyVal >= 990 && keyVal <= 1010) note = 1;
     else if (keyVal >= 490 && keyVal <= 520) note = 2;
     else if (keyVal >= 7 && keyVal <= 20) note = 3;
-    else note = -1;
+    else if (keyVal == 0) note = -1;
+    else note = past_note;
     
     if (note != -1){ // one button is activated
         play_notes[note] = 1; // play the note
