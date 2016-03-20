@@ -6,17 +6,25 @@
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(12, 11, 6, 5, 4, 3);
 
+// Input / output pins
+int ledG = 7;
+int ledR = 13;
+int reset = 2;
 int speakerA = 8;
 int speakerB = 9;
-int reset = 2;
+
+// Global variables
 int printNb = 0;
+int won = 0;
 
 void setup(){
     Serial.begin(9600);
 
+    pinMode(reset, INPUT);
+    pinMode(ledG, OUTPUT);
+    pinMode(ledR, OUTPUT);
     pinMode(speakerA, OUTPUT);
     pinMode(speakerB, OUTPUT);
-    pinMode(reset, INPUT);
 
     setup_interruption();
 

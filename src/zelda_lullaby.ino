@@ -5,7 +5,6 @@
 
 unsigned int count = 0;
 unsigned int quaver_in_song = 0;
-int won = 0;
 int way_to_win = 0;
 int freq_interrupt = 8000; // interruption frequency is 8000kHz
 int resetCount = 80000000; // number of count until the counter is reset
@@ -132,7 +131,7 @@ ISR (TIMER2_COMPA_vect) {
 //This is the interrupt service routine for TIMER2 Interrupt
     count++; //Increment our count variable
     if (count==resetCount) { count=0; }
-    
+
     if (won==0) piano_sound();
     else if (won==1) zelda_lullaby_sound();
 }
@@ -169,6 +168,14 @@ void loop_zelda_lullaby() {
 
         if (past_note != note) { // check the winning sequence
             way_to_win = winning_sequence[way_to_win] == note ? way_to_win + 1 : 0;
+            if (way_to_win > 0) {
+              digitalWrite(ledG, HIGH);
+              digitalWrite(ledR, LOW);
+            }
+            else {
+              digitalWrite(ledR, HIGH);
+              digitalWrite(ledG, LOW);
+            }
             Serial.print("note :"); Serial.print(note);
             Serial.print("button value :"); Serial.print(keyVal);
             Serial.print("new note :"); Serial.println(way_to_win);
