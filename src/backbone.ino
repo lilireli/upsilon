@@ -12,8 +12,8 @@ int ledR = 13;
 int reset = 2;
 int speakerA = 8;
 int speakerB = 9;
-int cols[8] = {9, 8, 4, 18, 3, 13, 12, 6};
-int rows[8] = {19, 11, 17, 10, 5, 16, 2, 7};
+int rows[8] = {6, 12, 13, 3, 18, 4, 8, 9};
+int cols[8] = {19, 11, 17, 10, 5, 16, 7, 2};
 
 // Global variables
 int printNb = 0;
@@ -36,11 +36,11 @@ void setup(){
     for (int i=0; i<8; i++){
       // set cols to high
       pinMode(cols[i], OUTPUT);
-      digitalWrite(cols[i], HIGH);
+      digitalWrite(cols[i], LOW);
 
       // set rows to low
       pinMode(rows[i], OUTPUT);
-      digitalWrite(rows[i], LOW);
+      digitalWrite(rows[i], HIGH);
     }
 }
 
