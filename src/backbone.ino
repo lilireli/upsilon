@@ -14,6 +14,8 @@ int speakerA = 8;
 int speakerB = 9;
 int rows[8] = {6, 12, 13, 3, 18, 4, 8, 9};
 int cols[8] = {19, 11, 17, 10, 5, 16, 7, 2};
+int selectRow = A0;
+int selectCol = A1;
 
 // Global variables
 int printNb = 0;
