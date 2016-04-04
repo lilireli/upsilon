@@ -3,11 +3,11 @@
  * Created : 02-29-2016
  */
 
-unsigned int count = 0;
+/*
+ * Variables to define temporality
+ */
 unsigned int quaver_in_song = 0;
 int way_to_win = 0;
-int freq_interrupt = 8000; // interruption frequency is 8000kHz
-int resetCount = 80000000; // number of count until the counter is reset
 
 /*
  * Zelda song
@@ -52,26 +52,7 @@ int past_note = -1;
 // choose if piezo is up or down
 // first toggle is for first piezo and real note
 // second toggle is for second piezo and second harmonic
-int toggle1 = 0, toggle2 = 0;
-
-void setup_interruption() {
-  //set timer2 interrupt at 8kHz
-  TCCR2A = 0;// set entire TCCR2A register to 0
-  TCCR2B = 0;// same for TCCR2B
-  TCNT2  = 0;//initialize counter value to 0
-  // set compare match register for 8khz increments
-  //  compare match register = [ 16,000,000Hz/ (prescaler * desired interrupt frequency) ] - 1
-  //remember that when you use timers 0 and 2 this number must be less than 256, and less than 65536 for timer1
-  OCR2A = 249;// = (16*10^6) / (8000*8) - 1 (must be <256)
-  // turn on CTC mode
-  TCCR2A |= (1 << WGM21);
-  // Set CS21 bit for 8 prescaler
-  TCCR2B |= (1 << CS21);
-  // enable timer compare interrupt
-  TIMSK2 |= (1 << OCIE2A);
-
-  sei();//allow interrupts
-}
+int toggle1 = 0, toggle2 = 0, toggle3 = 0;
 
 /*
  * Play notes and stop playing
@@ -84,9 +65,14 @@ void play_one_note(int note){
         digitalWrite(speakerA, toggle1 == 0 ? HIGH : LOW);
     }
 
-    if (count % freq_note/2 == 0) { // construct the first harmonic
+    if (count % freq_note/2 == 0) { // construct the first octave harmonic
         toggle2 = !toggle2;
         digitalWrite(speakerB, toggle2 == 0 ? HIGH : LOW);
+    }
+
+    if (count % freq_note/3 == 0) { // construct the second octave harmonic
+        toggle3 = !toggle3;
+        digitalWrite(speakerC, toggle3 == 0 ? HIGH : LOW);
     }
 }
 
@@ -127,6 +113,9 @@ void zelda_lullaby_sound(){
     }
 }
 
+/*
+ * New interruption function
+ */
 ISR (TIMER2_COMPA_vect) {
 //This is the interrupt service routine for TIMER2 Interrupt
     count++; //Increment our count variable
@@ -151,9 +140,8 @@ void loop_zelda_lullaby() {
         quaver_in_song = 0;
     }
 
-    int keyVal = analogRead(A0);
+    int keyVal = analogRead(pianoEntry);
     int note = -1;
-    //Serial.print("Note is "); Serial.println(keyVal);
 
     // get the value of the resistance and buttons
     if (keyVal > 1010) note = 0;
