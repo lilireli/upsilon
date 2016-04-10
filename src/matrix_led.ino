@@ -30,17 +30,25 @@ int size_square = 8;
 void print_matrix(int matrix[], int size_square){
   // we need row LOW and col HIGH to have led on
   for (int i=0; i<size_square; i++) {
-    digitalWrite(rows[i], LOW);
+    digitalWrite(rows[i], HIGH); // write right row
 
     for (int j=0; j<size_square; j++) {
       int pixel = matrix[i*(size_square) + j];
       if ( pixel == 1){
-        digitalWrite(cols[j], HIGH);
-        digitalWrite(cols[j], LOW);
+        for(int n=1; n<3; n++){
+            if((j% (int)pow(2, n) != 0) && (j-(int)pow(2, n-1) > 0)){
+                digitalWrite(cols[n], HIGH);
+            }
+        }
+        digitalWrite(allow_cols, HIGH); // write right col
+        digitalWrite(allow_cols, LOW); // delete it
+        for(int n=1; n<3; n++){
+            digitalWrite(cols[n], HIGH);
+        }
       }
     }
 
-    digitalWrite(rows[i], HIGH);
+    digitalWrite(rows[i], LOW); // delete write
   }
 }
 
@@ -75,6 +83,9 @@ void loop_8_by_8_led(){
   // resistances are in order 100 Ohm, 47k Ohm, 100k Ohm
   // formula to get trigger is (5 - (5*r)/(r+10)) / 5 * 1023
   // with 10 being the second resistance and r the resistance in k Ohm
+  // resistance are (in order) : 0, 100, 220, 1k, 4.7k, 10k, 47k, 100k
+
+  // for now we have 0, 100, 47k, 100k
   if (keyValRow > 1020) rowSelect = 0;
   else if (keyValRow >= 1000 && keyValRow <= 1020) rowSelect = 1;
   else if (keyValRow >= 170 && keyValRow <= 190) rowSelect = 2;

@@ -20,16 +20,18 @@ int speakerB = 9;
 int speakerC = 10;
 int ledG = 11;
 int ledR = 12;
-int reset = 53;
-int rows[8] = {6, 12, 13, 3, 18, 4, 8, 9};
-int cols[8] = {19, 11, 17, 10, 5, 16, 7, 2};
+int cols[3] = {22, 23, 24};
+int allow_cols = 25;
+int rows[8] = {26, 27, 28, 29, 30, 31, 32, 33};
+
+// counter
 unsigned int count = 0; // for the interruption service
 int freq_interrupt = 8000; // interruption frequency is 8000kHz
 int resetCount = 80000000; // number of count until the counter is reset
 
 // Global variables
 int printNb = 0;
-int won = 0;
+int won = 1;
 
 // Hijack the interrupt function
 void setup_interruption() {
@@ -54,7 +56,6 @@ void setup_interruption() {
 void setup(){
     Serial.begin(9600);
 
-    pinMode(reset, INPUT);
     pinMode(ledG, OUTPUT);
     pinMode(ledR, OUTPUT);
     pinMode(speakerA, OUTPUT);
@@ -66,25 +67,40 @@ void setup(){
     lcd.begin(16, 2);
 
     // setup for 8 by 8 led matrix
-    /*for (int i=0; i<8; i++){
+    for (int i=0; i<3; i++){
       // set cols to high
       pinMode(cols[i], OUTPUT);
       digitalWrite(cols[i], LOW);
+    }
+    pinMode(allow_cols, OUTPUT);
+    digitalWrite(allow_cols, LOW);
 
+    for (int i=0; i<8; i++){
       // set rows to low
       pinMode(rows[i], OUTPUT);
-      digitalWrite(rows[i], HIGH);
-  }*/
+      digitalWrite(rows[i], LOW);
+  }
 }
 
 void loop(){
-    if (printNb == 0) {
-      lcd.setCursor(0,0);
-      lcd.print("Find Zelda Song"); // max 16 caracters
-      lcd.setCursor(0,1);
-      lcd.print("and you'll see");
-      printNb = 1;
+    if (won == 0) {
+        if (printNb == 0) {
+            lcd.setCursor(0,0);
+            lcd.print("Find Zelda Song"); // max 16 caracters
+            lcd.setCursor(0,1);
+            lcd.print("and you'll see");
+            printNb = 1;
+        }
+        loop_zelda_lullaby();
     }
-    loop_zelda_lullaby();
-    /*loop_8_by_8_led();*/
+    else if (won == 1) {
+        if (printNb == 1) {
+            lcd.setCursor(0,0);
+            lcd.print("Find the        ");
+            lcd.setCursor(0,1);
+            lcd.print("mushroom        ");
+            printNb = 2;
+        }
+        loop_8_by_8_led();
+    }
 }

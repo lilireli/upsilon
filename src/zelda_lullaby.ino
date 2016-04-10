@@ -8,6 +8,7 @@
  */
 unsigned int quaver_in_song = 0;
 int way_to_win = 0;
+int won_zelda = 0;
 
 /*
  * Zelda song
@@ -48,6 +49,7 @@ int len_notes = 4;
 int winning_sequence[] = {2, 0, 3, 2, 0, 3};
 int len_win = sizeof(winning_sequence) / sizeof(winning_sequence[0]);
 int past_note = -1;
+int nb_past_note = 0;
 
 // choose if piezo is up or down
 // first toggle is for first piezo and real note
@@ -110,6 +112,7 @@ void zelda_lullaby_sound(){
     }
     else {
         stop_sound();
+        won = 1;
     }
 }
 
@@ -121,25 +124,14 @@ ISR (TIMER2_COMPA_vect) {
     count++; //Increment our count variable
     if (count==resetCount) { count=0; }
 
-    if (won==0) piano_sound();
-    else if (won==1) zelda_lullaby_sound();
+    if (won_zelda==0) piano_sound();
+    else if (won_zelda==1) zelda_lullaby_sound();
 }
 
 /*
  * Main loop
  */
 void loop_zelda_lullaby() {
-    int resetState = digitalRead(reset);
-
-    if (resetState == HIGH){ // reset button
-        Serial.print("Reset");
-        won = 0;
-        way_to_win = 0;
-        for(int i=0; i<len_notes; i++) play_notes[i] = 0;
-        stop_sound();
-        quaver_in_song = 0;
-    }
-
     int keyVal = analogRead(pianoEntry);
     int note = -1;
 
@@ -147,14 +139,14 @@ void loop_zelda_lullaby() {
     if (keyVal > 1010) note = 0;
     else if (keyVal >= 990 && keyVal <= 1010) note = 1;
     else if (keyVal >= 490 && keyVal <= 520) note = 2;
-    else if (keyVal >= 7 && keyVal <= 20) note = 3;
+    else if (keyVal >= 80 && keyVal <= 100) note = 3;
     else if (keyVal == 0) note = -1;
     else note = past_note;
 
     if (note != -1){ // one button is activated
         play_notes[note] = 1; // play the note
 
-        if (past_note != note) { // check the winning sequence
+        if (nb_past_note == 5) { // check the winning sequence when the note is activated for at least 5 loops
             way_to_win = winning_sequence[way_to_win] == note ? way_to_win + 1 : 0;
             if (way_to_win > 0) {
               digitalWrite(ledG, HIGH);
@@ -174,8 +166,9 @@ void loop_zelda_lullaby() {
         stop_sound();
     }
 
+    nb_past_note = note == past_note ? nb_past_note + 1 : 0; // keep trace of how long have we heard the last_note
     past_note = note; // keep trace of old value
 
-    if (way_to_win == len_win) won = 1; // the first notes of the lullaby have been found,
+    if (way_to_win == len_win) won_zelda = 1; // the first notes of the lullaby have been found,
                                         // can continue to zelda lullaby
 }
