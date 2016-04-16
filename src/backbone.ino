@@ -79,7 +79,7 @@ void setup(){
       // set rows to low
       pinMode(rows[i], OUTPUT);
       digitalWrite(rows[i], LOW);
-  }
+    }
 }
 
 void loop(){
