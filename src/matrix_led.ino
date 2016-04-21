@@ -75,19 +75,9 @@ void loop_8_by_8_led(){
     int rowSelect = -1, colSelect = -1,rowPast = -1, colPast = -1;
     int rowPlayed = -1, colPlayed = -1;
 
-    // resistances are in order 100 Ohm, 47k Ohm, 100k Ohm
-    // formula to get trigger is (5 - (5*r)/(r+10)) / 5 * 1023
-    // with 10 being the second resistance and r the resistance in k Ohm
-    // resistance are (in order) : 0, 100, 220, 1k, 4.7k, 10k, 47k, 100k
+    double resistance[8] = {0.0, 0.1, 0.22, 1.0, 4.7, 10.0, 47.0, 100.0};
 
-    // for now we have 0, 100, 47k, 100k
-    if (keyValRow > 1020) rowSelect = 0;
-    else if (keyValRow >= 1000 && keyValRow <= 1020) rowSelect = 1;
-    else if (keyValRow >= 170 && keyValRow <= 190) rowSelect = 2;
-    else if (keyValRow >= 80 && keyValRow <= 100) rowSelect = 3;
-    else if (keyValRow == 0) rowSelect = -1;
-    else rowSelect = rowPast;
-
+    rowSelect = getButton(resistance, 4 , keyValRow, rowPast);
     if (rowSelect != -1){ // one button is activated
         Serial.print("Button"); Serial.println(rowSelect);
 
@@ -95,22 +85,14 @@ void loop_8_by_8_led(){
             rowPlayed = rowSelect;
         }
     }
-
     rowPast = rowSelect;
 
-    if (keyValCol > 1020) colSelect = 0;
-    else if (keyValCol >= 1000 && keyValCol <= 1020) colSelect = 1;
-    else if (keyValCol >= 170 && keyValCol <= 190) colSelect = 2;
-    else if (keyValCol >= 80 && keyValCol <= 100) colSelect = 3;
-    else if (keyValCol == 0) colSelect = -1;
-    else colSelect = colPast;
-
+    colSelect = getButton(resistance, 4 , keyValCol, colPast);
     if (colSelect != -1){ // one button is activated
         if (colPast == -1) { // it has just been activated
             colPlayed = colSelect;
         }
     }
-
     colPast = colSelect;
 
     if(rowPlayed >= 0 && colPlayed >= 0){

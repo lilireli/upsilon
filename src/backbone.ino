@@ -31,7 +31,7 @@ int resetCount = 80000000; // number of count until the counter is reset
 
 // Global variables
 int printNb = 0;
-int won = 1;
+int won = 0;
 
 // Hijack the interrupt function
 void setup_interruption() {

@@ -134,19 +134,22 @@ ISR (TIMER2_COMPA_vect) {
 void loop_zelda_lullaby() {
     int keyVal = analogRead(pianoEntry);
     int note = -1;
+    //Serial.println(keyVal);
 
     // get the value of the resistance and buttons
-    if (keyVal > 1010) note = 0;
+    /*if (keyVal > 1010) note = 0;
     else if (keyVal >= 990 && keyVal <= 1010) note = 1;
     else if (keyVal >= 490 && keyVal <= 520) note = 2;
     else if (keyVal >= 80 && keyVal <= 100) note = 3;
     else if (keyVal == 0) note = -1;
-    else note = past_note;
+    else note = past_note;*/
+    double resistance[4] = {0.0, 0.22, 10.0, 100.0};
+    note = getButton(resistance, 4 , keyVal, past_note);
 
     if (note != -1){ // one button is activated
         play_notes[note] = 1; // play the note
 
-        if (nb_past_note == 5) { // check the winning sequence when the note is activated for at least 5 loops
+        if (nb_past_note == 100) { // check the winning sequence when the note is activated for at least 100 loops
             way_to_win = winning_sequence[way_to_win] == note ? way_to_win + 1 : 0;
             if (way_to_win > 0) {
               digitalWrite(ledG, HIGH);
