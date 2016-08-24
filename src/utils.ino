@@ -1,6 +1,9 @@
-/*
-* Author : Aurélie Suzanne
-* Created : 03-21-2016
+/**
+* @Author: Aurelie Suzanne <aurelie>
+* @Date:   21-Mar-2016
+* @Project: Upsilon
+* @Last modified by:   aurelie
+* @Last modified time: 24-Aug-2016
 *
 * This file contains tools for the project
 */

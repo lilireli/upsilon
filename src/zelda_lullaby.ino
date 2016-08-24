@@ -1,7 +1,10 @@
-/*
- * Author : Aurélie Suzanne
- * Created : 02-29-2016
- */
+/**
+* @Author: Aurelie Suzanne <aurelie>
+* @Date:   29-Feb-2016
+* @Project: Upsilon
+* @Last modified by:   aurelie
+* @Last modified time: 24-Aug-2016
+*/
 
 /*
  * Variables to define temporality
