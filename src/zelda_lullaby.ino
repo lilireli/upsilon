@@ -112,7 +112,7 @@ void zelda_lullaby_sound(){
     }
     else {
         stop_sound();
-        won = 1;
+        won += 1;
     }
 }
 
@@ -143,7 +143,7 @@ void loop_zelda_lullaby() {
     else if (keyVal >= 80 && keyVal <= 100) note = 3;
     else if (keyVal == 0) note = -1;
     else note = past_note;*/
-    double resistance[4] = {0.0, 0.22, 10.0, 100.0};
+    double resistance[4] = {0.0, 0.56, 10.0, 100.0};
     note = getButton(resistance, 4 , keyVal, past_note);
 
     if (note != -1){ // one button is activated

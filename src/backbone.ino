@@ -12,6 +12,7 @@
 int pianoEntry = A0;
 int selectRow = A1;
 int selectCol = A2;
+int photoRes = A3;
 
 // Digital inputs/outputs
 LiquidCrystal lcd(7, 6, 5, 4, 3, 2);
@@ -23,6 +24,8 @@ int ledR = 12;
 int cols[3] = {22, 23, 24};
 int allow_cols = 25;
 int rows[8] = {26, 27, 28, 29, 30, 31, 32, 33};
+int digit[7] = {34, 35, 36, 37, 38, 39, 40};
+int allow_digit = 41;
 
 // counter
 unsigned int count = 0; // for the interruption service
@@ -30,8 +33,8 @@ int freq_interrupt = 8000; // interruption frequency is 8000kHz
 int resetCount = 80000000; // number of count until the counter is reset
 
 // Global variables
-int printNb = 0;
-int won = 0;
+int printNb = 1;
+int won = 1;
 
 // Hijack the interrupt function
 void setup_interruption() {
@@ -80,6 +83,14 @@ void setup(){
       pinMode(rows[i], OUTPUT);
       digitalWrite(rows[i], LOW);
     }
+
+    for (int i=0; i<7; i++){
+        // set digit components to low
+        pinMode(digit[i], OUTPUT);
+        digitalWrite(digit[i], LOW);
+    }
+    pinMode(allow_digit, OUTPUT);
+    digitalWrite(allow_digit, LOW);
 }
 
 void loop(){
@@ -100,6 +111,16 @@ void loop(){
             lcd.setCursor(0,1);
             lcd.print("mushroom        ");
             printNb = 2;
+        }
+        loop_8_by_8_led();
+    }
+    else if (won == 2) {
+        if (printNb == 2) {
+            lcd.setCursor(0,0);
+            lcd.print("Won             ");
+            lcd.setCursor(0,1);
+            lcd.print("mushroom        ");
+            printNb = 3;
         }
         loop_8_by_8_led();
     }
